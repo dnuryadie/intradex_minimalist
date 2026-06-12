@@ -10,7 +10,7 @@ COMMODITY_FOB_MASTER = {
         "raw_material_idr": 65000,
         "processing_idr": 8000,
         "packaging_idr": 2500,
-        "documentation_idr": 3500,
+        "documentation_flat_idr": 3500000,   # IDR per shipment (flat), ~USD 195–200
         "port_handling_idr": 2000,
         "margin_percent": 20
     },
@@ -20,7 +20,7 @@ COMMODITY_FOB_MASTER = {
         "raw_material_idr": 85000,
         "processing_idr": 10000,
         "packaging_idr": 2500,
-        "documentation_idr": 3500,
+        "documentation_flat_idr": 3500000,
         "port_handling_idr": 2000,
         "margin_percent": 20
     },
@@ -30,7 +30,7 @@ COMMODITY_FOB_MASTER = {
         "raw_material_idr": 42000,
         "processing_idr": 5000,
         "packaging_idr": 2500,
-        "documentation_idr": 3500,
+        "documentation_flat_idr": 3500000,
         "port_handling_idr": 2000,
         "margin_percent": 20
     },
@@ -40,7 +40,7 @@ COMMODITY_FOB_MASTER = {
         "raw_material_idr": 42000,
         "processing_idr": 12000,
         "packaging_idr": 6000,
-        "documentation_idr": 3500,
+        "documentation_flat_idr": 3500000,
         "port_handling_idr": 2000,
         "margin_percent": 25
     },
@@ -50,7 +50,7 @@ COMMODITY_FOB_MASTER = {
         "raw_material_idr": 95000,
         "processing_idr": 7000,
         "packaging_idr": 2500,
-        "documentation_idr": 3500,
+        "documentation_flat_idr": 3500000,
         "port_handling_idr": 2000,
         "margin_percent": 20
     },
@@ -60,7 +60,7 @@ COMMODITY_FOB_MASTER = {
         "raw_material_idr": 110000,
         "processing_idr": 7000,
         "packaging_idr": 2500,
-        "documentation_idr": 3500,
+        "documentation_flat_idr": 3500000,
         "port_handling_idr": 2000,
         "margin_percent": 20
     },
@@ -70,7 +70,7 @@ COMMODITY_FOB_MASTER = {
         "raw_material_idr": 750000,
         "processing_idr": 25000,
         "packaging_idr": 35000,
-        "documentation_idr": 5000,
+        "documentation_flat_idr": 5000000,   # Lebih tinggi karena high-value commodity
         "port_handling_idr": 3000,
         "margin_percent": 25
     },
@@ -80,7 +80,7 @@ COMMODITY_FOB_MASTER = {
         "raw_material_idr": 850000,
         "processing_idr": 30000,
         "packaging_idr": 85000,
-        "documentation_idr": 5000,
+        "documentation_flat_idr": 5000000,
         "port_handling_idr": 3000,
         "margin_percent": 25
     }
@@ -132,18 +132,22 @@ def calculate_fob_price(commodity_name, volume_kg, packaging_type, loading_port,
 
     freight_idr = DOMESTIC_FREIGHT_COST_IDR[loading_port]
 
-    raw_material_idr = data["raw_material_idr"]
-    processing_idr = data["processing_idr"]
-    packaging_idr = data["packaging_idr"]
-    documentation_idr = data["documentation_idr"]
+    raw_material_idr  = data["raw_material_idr"]
+    processing_idr    = data["processing_idr"]
+    packaging_idr     = data["packaging_idr"]
     port_handling_idr = data["port_handling_idr"]
+
+    # documentation_flat_idr adalah biaya FLAT per-shipment (bukan per-kg).
+    # Untuk masuk ke kalkulasi cost-per-kg, kita bagi dengan volume_kg.
+    documentation_flat_idr   = data["documentation_flat_idr"]
+    documentation_per_kg_idr = documentation_flat_idr / volume_kg   # allocated per kg
 
     total_cost_per_kg_idr = (
         raw_material_idr +
         processing_idr +
         packaging_idr +
         freight_idr +
-        documentation_idr +
+        documentation_per_kg_idr +
         port_handling_idr
     )
 
@@ -181,19 +185,19 @@ def calculate_fob_price(commodity_name, volume_kg, packaging_type, loading_port,
         "total_cost_usd": round(total_cost_usd, 2),
         "profit_usd": round(profit_usd, 2),
         "breakdown_per_kg": {
-            "raw_material_idr": raw_material_idr,
-            "processing_idr": processing_idr,
-            "packaging_idr": packaging_idr,
-            "freight_idr": freight_idr,
-            "documentation_idr": documentation_idr,
+            "raw_material_idr":  raw_material_idr,
+            "processing_idr":    processing_idr,
+            "packaging_idr":     packaging_idr,
+            "freight_idr":       freight_idr,
+            "documentation_idr": round(documentation_per_kg_idr, 2),   # per-kg allocation
             "port_handling_idr": port_handling_idr
         },
         "breakdown_total": {
-            "raw_material_idr": raw_material_idr * volume_kg,
-            "processing_idr": processing_idr * volume_kg,
-            "packaging_idr": packaging_idr * volume_kg,
-            "freight_idr": freight_idr * volume_kg,
-            "documentation_idr": documentation_idr * volume_kg,
+            "raw_material_idr":  raw_material_idr * volume_kg,
+            "processing_idr":    processing_idr * volume_kg,
+            "packaging_idr":     packaging_idr * volume_kg,
+            "freight_idr":       freight_idr * volume_kg,
+            "documentation_idr": documentation_flat_idr,               # flat total per shipment
             "port_handling_idr": port_handling_idr * volume_kg
         }
     }

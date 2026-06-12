@@ -194,14 +194,13 @@ def generate_pi_pdf(
     logo_cell = Table(
         [[Paragraph(
             "<b>[  SELLER COMPANY LOGO  ]</b><br/>"
-            "<font size='7' color='#AAAAAA'>"
-            "Replace this placeholder with your official logo<br/>"
-            "(recommended: PNG transparent, min 300dpi)"
+            "<font size='6' color='#AAAAAA'>"
+            "Replace with official logo (PNG transparent, min 300dpi)"
             "</font>",
-            ParagraphStyle("lph", fontSize=9, fontName="Helvetica-Bold",
+            ParagraphStyle("lph", fontSize=8, fontName="Helvetica-Bold",
                            textColor=colors.HexColor("#BBBBBB"), alignment=TA_CENTER)
         )]],
-        colWidths=[70 * mm], rowHeights=[28 * mm]
+        colWidths=[70 * mm], rowHeights=[16 * mm]   # dikecilkan dari 28mm → 16mm
     )
     logo_cell.setStyle(TableStyle([
         ("BOX",           (0, 0), (-1, -1), 1, colors.HexColor("#CCCCCC")),
@@ -227,7 +226,7 @@ def generate_pi_pdf(
         ("LEFTPADDING", (1, 0), (1, 0), 12),
     ]))
     story.append(top_row)
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 4))
 
     # ══════════════════════════════════════════════════════════════════════════
     # SELLER / BUYER (2 columns)
@@ -287,13 +286,13 @@ def generate_pi_pdf(
         ("LINEAFTER",     (0, 0), (0, -1), 0.5, BORDER_COLOR),
     ]))
     story.append(KeepTogether(party_tbl))
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 6))
 
     # ══════════════════════════════════════════════════════════════════════════
     # COMMODITY & SHIPMENT DETAILS
     # ══════════════════════════════════════════════════════════════════════════
     story.append(section_bar("COMMODITY & SHIPMENT DETAILS", styles, CONTENT_W))
-    story.append(Spacer(1, 6))
+    story.append(Spacer(1, 4))
 
     commodity_data = [
         ["Commodity",    fob_data["commodity"],
@@ -321,7 +320,7 @@ def generate_pi_pdf(
         ("LINEBELOW",     (0, 0), (-1, -1), 0.25, BORDER_COLOR),
     ]))
     story.append(comm_tbl)
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 6))
 
     # ══════════════════════════════════════════════════════════════════════════
     # PRICING TABLE
@@ -330,7 +329,7 @@ def generate_pi_pdf(
         f"PRICING  (Incoterm: FOB {fob_data['loading_port']}, Indonesia)",
         styles, CONTENT_W
     ))
-    story.append(Spacer(1, 4))
+    story.append(Spacer(1, 3))
 
     price_header = [
         Paragraph("Description", styles["section_header"]),
@@ -377,20 +376,20 @@ def generate_pi_pdf(
         ("SPAN",          (0, 2), (3, 2)),
     ]))
     story.append(price_tbl)
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 6))
 
     # ══════════════════════════════════════════════════════════════════════════
     # PAYMENT TERMS + BANK DETAILS (2 columns)
     # ══════════════════════════════════════════════════════════════════════════
     pay_col = [
         section_bar("PAYMENT TERMS", styles, COL_W),
-        Spacer(1, 4),
+        Spacer(1, 3),
         val(payment_terms, styles),
     ]
 
     bank_col = [
         section_bar("BANK DETAILS", styles, COL_W),
-        Spacer(1, 4),
+        Spacer(1, 3),
     ]
     if bank_details and bank_details.strip():
         bank_col.append(val(bank_details, styles))
@@ -413,70 +412,63 @@ def generate_pi_pdf(
         ("LINEAFTER",   (0, 0), (0, -1), 0.5, BORDER_COLOR),
     ]))
     story.append(KeepTogether(pay_tbl))
-    story.append(Spacer(1, 10))
-
-    # ══════════════════════════════════════════════════════════════════════════
-    # NOTES
-    # ══════════════════════════════════════════════════════════════════════════
-    story.append(section_bar("NOTES & CONDITIONS", styles, CONTENT_W))
-    story.append(Spacer(1, 4))
-
-    default_notes = (
-        f"1. This Proforma Invoice is valid for {validity_days} calendar days from the issue date.\n"
-        f"2. Prices are subject to change after the validity period.\n"
-        f"3. Final Commercial Invoice will be issued upon receipt of order confirmation and deposit.\n"
-        f"4. Phytosanitary Certificate, Certificate of Origin, and COA available upon request.\n"
-        f"5. Force majeure clauses apply as per international trade practice."
-    )
-    note_text = notes if (notes and notes.strip()) else default_notes
-    for line in note_text.split("\n"):
-        if line.strip():
-            story.append(Paragraph(line.strip(), styles["small"]))
-    story.append(Spacer(1, 12))
-
-    # ══════════════════════════════════════════════════════════════════════════
-    # SIGNATURE BLOCK
-    # ══════════════════════════════════════════════════════════════════════════
-    story.append(section_bar("AUTHORISATION & ACCEPTANCE", styles, CONTENT_W))
     story.append(Spacer(1, 6))
 
-    sig_col_w = CONTENT_W / 2 - 4
+    # ══════════════════════════════════════════════════════════════════════════
+    # NOTES + SIGNATURE (side by side untuk hemat ruang vertikal)
+    # ══════════════════════════════════════════════════════════════════════════
+    default_notes = (
+        f"1. PI valid for {validity_days} calendar days from issue date.\n"
+        f"2. Prices subject to change after validity period.\n"
+        f"3. Commercial Invoice issued upon order confirmation.\n"
+        f"4. Phytosanitary Cert, COO, COA available upon request.\n"
+        f"5. Force majeure clauses apply per international trade practice."
+    )
+    note_text = notes if (notes and notes.strip()) else default_notes
 
-    def sig_block(title, name, styles, width):
-        lines = [
+    notes_col = [section_bar("NOTES & CONDITIONS", styles, COL_W), Spacer(1, 3)]
+    for line in note_text.split("\n"):
+        if line.strip():
+            notes_col.append(Paragraph(line.strip(), styles["small"]))
+
+    sig_col_w = COL_W
+
+    def sig_block(title, name):
+        return [
             Paragraph(f"<b>{title}</b>",
-                      ParagraphStyle("st", fontSize=8, fontName="Helvetica-Bold",
-                                     textColor=TEXT_GRAY)),
-            Spacer(1, 30),
-            HRFlowable(width=width * 0.75, thickness=0.5, color=BORDER_COLOR),
-            Spacer(1, 3),
+                      ParagraphStyle("st", fontSize=8, fontName="Helvetica-Bold", textColor=TEXT_GRAY)),
+            Spacer(1, 18),
+            HRFlowable(width=sig_col_w * 0.85, thickness=0.5, color=BORDER_COLOR),
+            Spacer(1, 2),
             ph("[ Authorised Signature & Company Stamp ]", styles),
-            Spacer(1, 4),
             lbl("Name", styles),
             val(name if name else "[ Name & Title ]", styles),
             lbl("Date", styles),
             ph("[ dd / mm / yyyy ]", styles),
         ]
-        return lines
 
-    sig_tbl = Table(
-        [[sig_block("SELLER", seller_name, styles, sig_col_w),
-          sig_block("BUYER / CONSIGNEE", buyer_name, styles, sig_col_w)]],
-        colWidths=[sig_col_w + 4, sig_col_w + 4]
-    )
-    sig_tbl.setStyle(TableStyle([
+    sig_col = [
+        section_bar("AUTHORISATION & ACCEPTANCE", styles, sig_col_w),
+        Spacer(1, 3),
+        Table(
+            [[sig_block("SELLER", seller_name), sig_block("BUYER / CONSIGNEE", buyer_name)]],
+            colWidths=[sig_col_w / 2 - 2, sig_col_w / 2 - 2]
+        )
+    ]
+
+    bottom_tbl = Table([[notes_col, sig_col]], colWidths=[COL_W, COL_W])
+    bottom_tbl.setStyle(TableStyle([
         ("VALIGN",      (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (1, 0), (1, 0), 8),
         ("LINEAFTER",   (0, 0), (0, -1), 0.5, BORDER_COLOR),
-        ("LEFTPADDING", (1, 0), (1, 0), 12),
     ]))
-    story.append(KeepTogether(sig_tbl))
-    story.append(Spacer(1, 12))
+    story.append(bottom_tbl)
+    story.append(Spacer(1, 4))
 
     # ══════════════════════════════════════════════════════════════════════════
     # FOOTER
     # ══════════════════════════════════════════════════════════════════════════
     story.append(HRFlowable(width=CONTENT_W, thickness=0.5, color=MID_GREEN))
-    story.append(Spacer(1, 4))
     story.append(Paragraph(
         f"Generated by InTradeX-Mate &nbsp;|&nbsp; {pi_number} &nbsp;|&nbsp; "
         f"Issued: {issue_date_str} &nbsp;|&nbsp; "
