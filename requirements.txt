@@ -1,0 +1,7 @@
+streamlit
+google-genai
+python-dotenv
+reportlab
+pandas
+requests
+sift-stack-py
