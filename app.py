@@ -802,15 +802,15 @@ with tab_pi:
         pi_col1, pi_col2 = st.columns(2)
         with pi_col1:
             st.markdown("**Seller**")
-            seller_name    = st.text_input("Seller Name",    value="", placeholder="e.g. PT Magastu Indoprime Group")
-            seller_address = st.text_input("Seller Address", value="", placeholder="e.g. Jakarta, Indonesia")
+            seller_name    = st.text_input("Seller Name",    value="", placeholder="e.g. Magastu Indoprime Group (MIG)")
+            seller_address = st.text_input("Seller Address", value="", placeholder="e.g. East Seram, Maluku, Indonesia")
             seller_country = st.selectbox(
                 "Seller Country",
                 COUNTRY_LIST,
                 index=COUNTRY_LIST.index("Indonesia"),
                 key="seller_country_select"
             )
-            seller_email   = st.text_input("Seller Email",   value="", placeholder="e.g. trade@magastu.id")
+            seller_email   = st.text_input("Seller Email",   value="", placeholder="e.g. trade@magastu.com")
             seller_phone   = st.text_input("Seller Phone",   value="", placeholder="e.g. +62 21 XXXX XXXX")
         with pi_col2:
             st.markdown("**Buyer / Consignee**")
@@ -1021,7 +1021,7 @@ const doc = new Document({{
                 alignment: AlignmentType.CENTER,
                 shading: {{ fill: MID_GREEN, type: ShadingType.CLEAR }},
                 spacing: {{ before: 0, after: 160 }},
-                children: [new TextRun({{ text: "InTradeX-Mate  |  A Strategic Initiative from MAGASTU  |  Indonesian Spices Export", size: 16, color: "FFFFFF" }})]
+                children: [new TextRun({{ text: "InTradeX-Mate  |  A Strategic Initiative from MAGASTU INDOPRIME GROUP (MIG)", size: 16, color: "FFFFFF" }})]
             }}),
             new Table({{
                 width: {{ size: 9746, type: WidthType.DXA }},
@@ -1182,9 +1182,9 @@ with tab_qt:
         st.markdown("#### 🏢 Quotation Parties")
         qt_col1, qt_col2 = st.columns(2)
         with qt_col1:
-            qt_seller_name    = st.text_input("Your Company Name", placeholder="e.g. PT Magastu Indoprime Group", key="qt_seller_name")
+            qt_seller_name    = st.text_input("Your Company Name", placeholder="e.g. Magastu Indoprime Group (MIG)", key="qt_seller_name")
             qt_seller_address = st.text_input("Your Address", placeholder="e.g. Jakarta, Indonesia", key="qt_seller_addr")
-            qt_seller_email   = st.text_input("Your Email", placeholder="e.g. trade@magastu.id", key="qt_seller_email")
+            qt_seller_email   = st.text_input("Your Email", placeholder="e.g. trade@magastu.com", key="qt_seller_email")
             qt_seller_phone   = st.text_input("Your Phone / WhatsApp", placeholder="e.g. +62 812 XXXX XXXX", key="qt_seller_phone")
         with qt_col2:
             qt_buyer_name    = st.text_input("Buyer / Recipient Name", placeholder="e.g. Spice Trading GmbH", key="qt_buyer_name")
@@ -1324,7 +1324,7 @@ with tab_qt:
                         ]]
                         header_sub = [[
                             Paragraph(
-                                "InTradeX-Mate &nbsp;|&nbsp; A Strategic Initiative from MAGASTU &nbsp;|&nbsp; Indonesian Spice Export",
+                                "InTradeX-Mate &nbsp;|&nbsp; A Strategic Initiative from MAGASTU INDOPRIME GROUP (MIG)",
                                 sub_style
                             )
                         ]]
@@ -1337,7 +1337,7 @@ with tab_qt:
                         story.append(header_tbl)
 
                         sub_tbl = Table([[Paragraph(
-                            "InTradeX-Mate  |  A Strategic Initiative from MAGASTU  |  Indonesian Spice Export",
+                            "InTradeX-Mate  |  A Strategic Initiative from MAGASTU INDOPRIME GROUP (MIG)",
                             sub_style
                         )]], colWidths=[page_w])
                         sub_tbl.setStyle(TableStyle([
@@ -1569,7 +1569,7 @@ const doc = new Document({{
                 alignment: AlignmentType.CENTER,
                 shading: {{ fill: "2E7D32", type: ShadingType.CLEAR }},
                 spacing: {{ before: 0, after: 200 }},
-                children: [new TextRun({{ text: "InTradeX-Mate  |  A Strategic Initiative from MAGASTU  |  Indonesian Spices Export", size: 16, color: "FFFFFF" }})]
+                children: [new TextRun({{ text: "InTradeX-Mate  |  A Strategic Initiative from MAGASTU  INDOPRIME GROUP (MIG)", size: 16, color: "FFFFFF" }})]
             }}),
 
             // META
