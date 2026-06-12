@@ -351,11 +351,11 @@ st.subheader(get_greeting(lang_option))
 if len(st.session_state.messages) == 0:
     st.image("assets/logo.png", width="stretch")
 
-tab_pack, tab_fob, tab_pi, tab_qt = st.tabs([
+tab_pack, tab_fob, tab_qt, tab_pi = st.tabs([
     "📦 Sourcing & Packaging Calculator",
     "🚢 FOB Commercial Calculator",
-    "📄 Proforma Invoice Generator",
-    "📋 Quotation Generator"
+    "📄 Quotation Generator",
+    "📋 Proforma Invoice Generator"
 ])
 
 # ── TAB 1: PACKAGING CALCULATOR ──────────────────────────────────────────
