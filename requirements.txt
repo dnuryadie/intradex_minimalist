@@ -5,3 +5,4 @@ reportlab
 pandas
 requests
 sift-stack-py
+python-docx

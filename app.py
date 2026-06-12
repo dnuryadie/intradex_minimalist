@@ -10,7 +10,7 @@ from pi_generator import generate_pi_pdf, CONFIRM_MESSAGES
 
 # ── 1. CONFIGURATION & INITIALIZATION ────────────────────────────────────────
 st.set_page_config(
-    page_title="InTradeX-Mate - AI-Powered Trade Consultant",
+    page_title="InTradeX-Mate | AI-Powered Trade Consultant",
     page_icon="assets/favicon.png",
     layout="wide"
 )
@@ -19,8 +19,8 @@ st.set_page_config(
 st.markdown("""
     <style>
         [data-testid="stSidebar"] {
-            min-width: 270px !important;
-            max-width: 270px !important;
+            min-width: 333px !important;
+            max-width: 333px !important;
         }
         [data-testid="stSidebarResizeHandle"] {
             display: none !important;
@@ -72,7 +72,7 @@ st.sidebar.markdown(
     <div style='padding: 2px 0 0 0;'>
         <p style='font-size: 20px; font-weight: 700; margin: 0 0 2px 0; line-height: 1.2;'>InTradeX-Mate</p>
         <p style='font-size: 13px; color: gray; margin: 0 0 1px 0; line-height: 1.4;'>
-            Your Trade Intelligence Partner<br>for Indonesian Spice Sourcing
+            Your Trade Intelligence Partner<br>for Indonesian Spice Sourcing Solutions
         </p>
     </div>
     """,
@@ -81,18 +81,21 @@ st.sidebar.markdown(
 
 st.sidebar.markdown(" ")
 
-st.sidebar.caption("A strategic initiative from **MAGASTU** for Indonesian spice sourcing solutions.")
+st.sidebar.caption("""
+A strategic initiative from<br>
+**MAGASTU INDOPRIME GROUP (MIG)**
+""", unsafe_allow_html=True)
 
 st.sidebar.markdown("---")
 
 lang_option = st.sidebar.selectbox(
-    "🌐 Select Language",
+    "🌐 Language",
     ["English", "Deutsch", "Nederlands", "日本語", "한국어", "العربية", "Bahasa Indonesia"]
 )
 
 st.sidebar.markdown("---")
 
-st.sidebar.markdown("**🤝 How InTradeX-Mate Supports You**")
+st.sidebar.markdown("🤝 How **InTradeX-Mate** Supports You!")
 st.sidebar.markdown(
     """
     🔍 Trade Intelligence & Market Insights  
@@ -346,7 +349,7 @@ live_rate, live_rate_updated, live_rate_ok = fetch_live_usd_idr()
 # ── TRADE TOOLS: always rendered regardless of chat history ──────────────────
 st.subheader(get_greeting(lang_option))
 if len(st.session_state.messages) == 0:
-    st.image("assets/intradex_logo.png", width="stretch")
+    st.image("assets/logo.png", width="stretch")
 
 tab_pack, tab_fob, tab_pi, tab_qt = st.tabs([
     "📦 Sourcing & Packaging Calculator",
@@ -1018,7 +1021,7 @@ const doc = new Document({{
                 alignment: AlignmentType.CENTER,
                 shading: {{ fill: MID_GREEN, type: ShadingType.CLEAR }},
                 spacing: {{ before: 0, after: 160 }},
-                children: [new TextRun({{ text: "InTradeX-Mate  |  A Strategic Initiative from MAGASTU  |  Indonesian Spice Export", size: 16, color: "FFFFFF" }})]
+                children: [new TextRun({{ text: "InTradeX-Mate  |  A Strategic Initiative from MAGASTU  |  Indonesian Spices Export", size: 16, color: "FFFFFF" }})]
             }}),
             new Table({{
                 width: {{ size: 9746, type: WidthType.DXA }},
@@ -1566,7 +1569,7 @@ const doc = new Document({{
                 alignment: AlignmentType.CENTER,
                 shading: {{ fill: "2E7D32", type: ShadingType.CLEAR }},
                 spacing: {{ before: 0, after: 200 }},
-                children: [new TextRun({{ text: "InTradeX-Mate  |  A Strategic Initiative from MAGASTU  |  Indonesian Spice Export", size: 16, color: "FFFFFF" }})]
+                children: [new TextRun({{ text: "InTradeX-Mate  |  A Strategic Initiative from MAGASTU  |  Indonesian Spices Export", size: 16, color: "FFFFFF" }})]
             }}),
 
             // META
