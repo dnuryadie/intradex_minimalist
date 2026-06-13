@@ -3,6 +3,7 @@ import base64
 import requests
 from datetime import datetime, timedelta
 import streamlit as st
+import streamlit.components.v1 as components
 from google import genai
 from google.genai import types
 from pricing_engine import calculate_packaging_cost, PACKAGING_MASTER
@@ -74,6 +75,30 @@ st.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
+
+# ── TOP ANCHOR — hero section is always position-zero ────────────────────────
+# This invisible div acts as the scroll target so the browser can never land
+# below the hero on initial load.
+st.markdown('<a id="top"></a>', unsafe_allow_html=True)
+
+# Inject a one-shot JS scroll-reset via an iframe. This fires on every full
+# page load (F5 / first visit) but NOT on Streamlit's partial reruns that are
+# triggered by widget interaction, so it does not fight the user while they
+# type. parent.window is the host page; the iframe itself has height=0.
+components.html(
+    """
+    <script>
+        // Only scroll on true page load, not on Streamlit hot-reruns
+        if (window.performance && window.performance.navigation.type !== 1) {
+            parent.window.scrollTo({ top: 0, behavior: 'instant' });
+        } else {
+            parent.window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+    </script>
+    """,
+    height=0,
+    scrolling=False,
+)
 
 # ── API KEY ───────────────────────────────────────────────────────────────────
 try:
@@ -384,6 +409,9 @@ if "sync_volume"    not in st.session_state: st.session_state.sync_volume = None
 if "sync_packaging" not in st.session_state: st.session_state.sync_packaging = None
 if "reset_counter"  not in st.session_state: st.session_state.reset_counter = 0
 if "sync_applied"   not in st.session_state: st.session_state.sync_applied = True
+# Tracks whether the user has started typing / sending — used to clear the
+# text-area after a successful send without interfering with normal edits.
+if "_chat_input_key" not in st.session_state: st.session_state._chat_input_key = 0
 
 live_rate, live_rate_updated, live_rate_ok = fetch_live_usd_idr()
 
@@ -1199,9 +1227,12 @@ with tab_qt:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# DEDICATED AI CHATBOT SECTION — FIXED HEIGHT SCROLLABLE BOX
+# AI EXPORT CONSULTANT SECTION — positioned BELOW all primary business tools
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("---")
+
+# ── Section anchor (so sidebar link can jump here, but load never lands here) ─
+st.markdown('<a id="ai-consultant"></a>', unsafe_allow_html=True)
 
 # ── Chatbot header ─────────────────────────────────────────────────────────────
 st.markdown("""
@@ -1234,9 +1265,36 @@ with st.container(height=150, border=True):
             unsafe_allow_html=True
         )
 
-# ── Chat input (always at bottom of page) ─────────────────────────────────────
-if user_input := st.chat_input(placeholder=selected_lang["placeholder"]):
-    st.session_state.messages.append({"role": "user", "content": user_input})
+# ── Chat input: text_area + button — does NOT grab focus or scroll the page ───
+# st.chat_input() is intentionally avoided here because it auto-focuses on
+# every render, which causes the browser to jump away from the hero banner on
+# page load. st.text_area is a passive widget with no auto-focus behaviour.
+st.markdown(
+    "<p style='margin: 8px 0 4px 0; font-size: 13px; color: #555;'>💬 Ask the AI Consultant:</p>",
+    unsafe_allow_html=True
+)
+_ck = st.session_state._chat_input_key          # key rotates after each send
+_chat_cols = st.columns([5, 1])
+with _chat_cols[0]:
+    user_input = st.text_area(
+        label="chat_message",
+        label_visibility="collapsed",
+        placeholder=selected_lang["placeholder"],
+        height=80,
+        key=f"chat_textarea_{_ck}",
+    )
+with _chat_cols[1]:
+    # Vertical spacer so button aligns with the bottom of the text area
+    st.markdown("<div style='padding-top: 27px;'></div>", unsafe_allow_html=True)
+    send_clicked = st.button(
+        "Send ➤",
+        use_container_width=True,
+        type="primary",
+        key=f"chat_send_{_ck}",
+    )
+
+if send_clicked and user_input and user_input.strip():
+    st.session_state.messages.append({"role": "user", "content": user_input.strip()})
 
     # Rebuild system prompt with latest calc context
     live_calc_data = st.session_state.current_calc_context
@@ -1290,4 +1348,7 @@ if user_input := st.chat_input(placeholder=selected_lang["placeholder"]):
             friendly = f"⚠️ Unable to generate response: {err_msg}"
         st.session_state.messages.append({"role": "model", "content": friendly})
 
+    # Rotate the key so the text_area clears after send, then rerun
+    st.session_state._chat_input_key += 1
     st.rerun()
+
