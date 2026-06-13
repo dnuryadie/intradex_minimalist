@@ -1197,7 +1197,7 @@ if len(st.session_state.messages) == 0:
         st.caption("💡 You can also ask about the current calculation shown above.")
 
 # ── Scrollable fixed-height message container ─────────────────────────────────
-with st.container(height=350, border=True):
+with st.container(height=150, border=True):
     if st.session_state.messages:
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
@@ -1215,7 +1215,7 @@ with st.container(height=350, border=True):
 # every render, which causes the browser to jump away from the hero banner on
 # page load. st.text_area is a passive widget with no auto-focus behaviour.
 st.markdown(
-    "<p style='margin: 8px 0 4px 0; font-size: 13px; color: #555;'>💬 Ask the AI Consultant:</p>",
+    "<p style='margin: 8px 0 4px 0; font-size: 14px; color: #555;'>💬 Ask the Consultant:</p>",
     unsafe_allow_html=True
 )
 _ck = st.session_state._chat_input_key          # key rotates after each send
