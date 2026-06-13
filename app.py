@@ -362,7 +362,16 @@ live_rate, live_rate_updated, live_rate_ok = fetch_live_usd_idr()
 
 
 # ── 8. MAIN CONTENT AREA ──────────────────────────────────────────────────────
-st.subheader(get_greeting(lang_option))
+# Greeting is rendered with negative top-margin so it visually aligns with the
+# sidebar logo (which sits at roughly the same vertical position on the page).
+st.markdown(
+    f"""
+    <h3 style='margin-top: -2.4rem; margin-bottom: 0.4rem; font-size: 1.35rem;'>
+        {get_greeting(lang_option)}
+    </h3>
+    """,
+    unsafe_allow_html=True,
+)
 # Always show the banner/logo (not conditional on message count)
 st.image("assets/logo.png", use_container_width=True)
 
@@ -1176,7 +1185,7 @@ with tab_qt:
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("---")
 
-# ── Section anchor (so sidebar link can jump here, but load never lands here) ─
+# ── Section anchor ─────────────────────────────────────────────────────────────
 st.markdown('<a id="ai-consultant"></a>', unsafe_allow_html=True)
 
 # ── Chatbot header ─────────────────────────────────────────────────────────────
@@ -1187,38 +1196,150 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ── Welcome message inside the container when no messages ─────────────────────
+# ── FIXED chat frame: welcome card + scrollable message history ────────────────
+# The outer container has a fixed height and does NOT scroll itself.
+# Only the inner message history div scrolls via CSS overflow-y.
+CHAT_FRAME_HEIGHT = 480   # px — total fixed height of the whole chat panel
+
+# Welcome card shown only when no conversation yet
 if len(st.session_state.messages) == 0:
-    with st.container(border=True):
-        st.markdown(f"**{selected_lang['subtitle']}**")
-        for bullet in selected_lang["bullets"]:
-            st.markdown(f"- {bullet}")
-        st.markdown(" ")
-        st.caption("💡 You can also ask about the current calculation shown above.")
+    welcome_bullets_html = "".join(
+        "<li style='color:#e0e0e0; margin-bottom:3px;'>" +
+        b.replace("**", "<strong style='color:#ffffff;'>", 1).replace("**", "</strong>", 1) +
+        "</li>"
+        for b in selected_lang["bullets"]
+    )
+    welcome_html = f"""
+    <div style="
+        background: rgba(27,67,50,0.40);
+        border: 1px solid #2D6A4F;
+        border-radius: 8px;
+        padding: 14px 18px 10px 18px;
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: #e8e8e8;
+    ">
+        <p style="font-weight:700; margin: 0 0 8px 0; color: #ffffff;">{selected_lang['subtitle']}</p>
+        <ul style="margin: 0 0 8px 16px; padding:0; line-height:1.9; color: #e0e0e0;">
+            {welcome_bullets_html}
+        </ul>
+        <p style="color:#B7E4C7; font-size:12px; margin:0;">
+            💡 You can also ask about the current calculation shown above.
+        </p>
+    </div>
+    """
+else:
+    welcome_html = ""
 
-# ── Scrollable fixed-height message container ─────────────────────────────────
-with st.container(height=150, border=True):
-    if st.session_state.messages:
-        for message in st.session_state.messages:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
+# Build chat history HTML
+msgs_html_parts = []
+for msg in st.session_state.messages:
+    if msg["role"] == "user":
+        msgs_html_parts.append(f"""
+        <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+            <div style="
+                background:#1B4332; color:#fff;
+                border-radius:12px 12px 2px 12px;
+                padding:9px 13px; max-width:80%;
+                font-size:14px; line-height:1.65;
+                font-family: 'Source Sans Pro', 'Noto Sans', 'Segoe UI', Arial, sans-serif;
+                white-space:pre-wrap; word-break:break-word;">
+                {msg['content']}
+            </div>
+        </div>""")
     else:
-        st.markdown(
-            "<div style='color: #aaa; text-align: center; padding-top: 180px; font-size: 13px;'>"
-            "💬 Your conversation will appear here…"
-            "</div>",
-            unsafe_allow_html=True
-        )
+        import re as _re
+        # Convert markdown: bold **text** → <strong>, italic *text* → <em>
+        rendered = _re.sub(r'\*\*(.+?)\*\*', r'<strong style="color:#fff;">\1</strong>', msg['content'])
+        rendered = _re.sub(r'\*([^\*\n]+?)\*', r'<em>\1</em>', rendered)
+        # Convert numbered list lines: "1. text" → styled block
+        rendered = _re.sub(r'(?m)^(\d+)\.\s+', r'<br><strong style="color:#B7E4C7;">\1.</strong> ', rendered)
+        # Convert markdown bullet lines
+        rendered = _re.sub(r'(?m)^[-•]\s+', '• ', rendered)
+        rendered = rendered.replace('\n', '<br>')
+        msgs_html_parts.append(f"""
+        <div style="display:flex; justify-content:flex-start; margin-bottom:8px;">
+            <div style="
+                background:#1e1e1e; color:#e0e0e0;
+                border:1px solid #333;
+                border-radius:12px 12px 12px 2px;
+                padding:9px 13px; max-width:85%;
+                font-size:14px; line-height:1.65;
+                font-family: 'Source Sans Pro', 'Noto Sans', 'Segoe UI', Arial, sans-serif;
+                word-break:break-word;">
+                {rendered}
+            </div>
+        </div>""")
 
-# ── Chat input: text_area + button — does NOT grab focus or scroll the page ───
-# st.chat_input() is intentionally avoided here because it auto-focuses on
-# every render, which causes the browser to jump away from the hero banner on
-# page load. st.text_area is a passive widget with no auto-focus behaviour.
+msgs_html = "".join(msgs_html_parts) if msgs_html_parts else (
+    "<div style='color:#888; text-align:center; padding-top:60px; font-size:13px;'>"
+    "💬 Your conversation will appear here…</div>"
+)
+
+# Scrollable message history (fixed height; scrolls inside)
+MSG_AREA_HEIGHT = CHAT_FRAME_HEIGHT - 20   # leave room for border
+components.html(
+    f"""
+    <style>
+        * {{ font-family: 'Source Sans Pro', 'Noto Sans', 'Segoe UI', Arial, sans-serif !important; }}
+        strong {{ color: #ffffff; }}
+        em {{ color: #B7E4C7; font-style: italic; }}
+    </style>
+    <div id="chat-history" style="
+        height: {MSG_AREA_HEIGHT}px;
+        overflow-y: auto;
+        padding: 14px 16px 8px 16px;
+        background: #111;
+        border: 1px solid #333;
+        border-radius: 0 0 8px 8px;
+        box-sizing: border-box;
+    ">
+        {welcome_html}
+        {msgs_html}
+        <div id="chat-bottom"></div>
+    </div>
+    <script>
+        // Auto-scroll to bottom whenever content renders
+        var el = document.getElementById('chat-history');
+        if (el) el.scrollTop = el.scrollHeight;
+    </script>
+    """,
+    height=MSG_AREA_HEIGHT + 10,
+    scrolling=False,
+)
+
+# ── Chat input row ─────────────────────────────────────────────────────────────
 st.markdown(
-    "<p style='margin: 8px 0 4px 0; font-size: 14px; color: #555;'>💬 Ask the Consultant:</p>",
+    "<p style='margin: 10px 0 4px 0; font-size: 14px; color: #888;'>💬 Ask the Consultant:</p>",
     unsafe_allow_html=True
 )
-_ck = st.session_state._chat_input_key          # key rotates after each send
+
+_ck = st.session_state._chat_input_key
+
+# ── File uploader (photo / pdf / excel / docx — max 25 MB) ────────────────────
+ALLOWED_TYPES = ["jpg", "jpeg", "png", "webp", "gif", "pdf", "xlsx", "xls", "docx", "doc"]
+MAX_UPLOAD_MB = 25
+
+uploaded_file = st.file_uploader(
+    label="📎 Attach a file (photo, PDF, Excel, or DOCX — max 25 MB)",
+    type=ALLOWED_TYPES,
+    accept_multiple_files=False,
+    key=f"chat_upload_{_ck}",
+    help="Supported: JPG, PNG, WEBP, GIF, PDF, XLSX, XLS, DOCX, DOC — Maximum 25 MB per upload.",
+)
+
+# Validate size client-side (Streamlit delivers the bytes object)
+upload_error = None
+if uploaded_file is not None:
+    file_size_mb = len(uploaded_file.getvalue()) / (1024 * 1024)
+    if file_size_mb > MAX_UPLOAD_MB:
+        upload_error = f"⚠️ File terlalu besar ({file_size_mb:.1f} MB). Maksimum {MAX_UPLOAD_MB} MB."
+        uploaded_file = None
+
+if upload_error:
+    st.error(upload_error)
+
+# Text area + Send button
 _chat_cols = st.columns([5, 1])
 with _chat_cols[0]:
     user_input = st.text_area(
@@ -1229,7 +1350,6 @@ with _chat_cols[0]:
         key=f"chat_textarea_{_ck}",
     )
 with _chat_cols[1]:
-    # Vertical spacer so button aligns with the bottom of the text area
     st.markdown("<div style='padding-top: 27px;'></div>", unsafe_allow_html=True)
     send_clicked = st.button(
         "Send ➤",
@@ -1238,62 +1358,94 @@ with _chat_cols[1]:
         key=f"chat_send_{_ck}",
     )
 
-if send_clicked and user_input and user_input.strip():
-    st.session_state.messages.append({"role": "user", "content": user_input.strip()})
+# ── Process send ───────────────────────────────────────────────────────────────
+if send_clicked and (user_input.strip() or uploaded_file is not None):
+    user_text = user_input.strip() if user_input.strip() else ""
 
-    # Rebuild system prompt with latest calc context
-    live_calc_data = st.session_state.current_calc_context
-    system_prompt_live = SYSTEM_PROMPT.replace(
-        f"CURRENT LIVE CALCULATION DATA:\n{st.session_state.current_calc_context}",
-        f"CURRENT LIVE CALCULATION DATA:\n{live_calc_data}"
-    )
+    # ── Build Gemini content parts ─────────────────────────────────────────────
+    parts_for_api = []
+    display_content = user_text  # what we store in session_state for display
 
-    config = types.GenerateContentConfig(
-        system_instruction=system_prompt_live,
-        temperature=0.25,
-        max_output_tokens=8192,
-    )
+    if uploaded_file is not None:
+        file_bytes = uploaded_file.getvalue()
+        fname = uploaded_file.name
+        ftype = uploaded_file.type  # e.g. "image/jpeg", "application/pdf"
 
-    api_contents = [
-        types.Content(
-            role="user" if msg["role"] == "user" else "model",
-            parts=[types.Part.from_text(text=msg["content"])]
-        )
-        for msg in st.session_state.messages
-    ]
+        # Build a human-readable attachment note for the display history
+        size_kb = len(file_bytes) / 1024
+        attach_note = f"\n\n📎 *Attachment: {fname} ({size_kb:.0f} KB)*"
+        display_content = (user_text + attach_note).strip()
 
-    try:
-        response_stream = client.models.generate_content_stream(
-            model="gemini-2.5-flash",
-            contents=api_contents,
-            config=config
-        )
-
-        full_response = ""
-        for chunk in response_stream:
-            if hasattr(chunk, "text") and chunk.text:
-                full_response += chunk.text
-
-        if full_response:
-            st.session_state.messages.append({"role": "model", "content": full_response})
+        # Pass file bytes to Gemini as inline_data
+        if ftype.startswith("image/"):
+            parts_for_api.append(types.Part.from_bytes(data=file_bytes, mime_type=ftype))
         else:
-            st.session_state.messages.append({
-                "role": "model",
-                "content": "I apologize — I received an empty response. Please try rephrasing your question."
-            })
-    except Exception as e:
-        err_msg = str(e)
-        if "quota" in err_msg.lower() or "429" in err_msg:
-            friendly = "⚠️ API quota limit reached. Please wait a moment and try again."
-        elif "blocked" in err_msg.lower() or "safety" in err_msg.lower():
-            friendly = "⚠️ The response was blocked by safety filters. Please rephrase your question."
-        elif "timeout" in err_msg.lower() or "deadline" in err_msg.lower():
-            friendly = "⚠️ Request timed out. Please try again."
-        else:
-            friendly = f"⚠️ Unable to generate response: {err_msg}"
-        st.session_state.messages.append({"role": "model", "content": friendly})
+            # PDF, DOCX, XLSX → pass as application/* mime
+            parts_for_api.append(types.Part.from_bytes(data=file_bytes, mime_type=ftype))
 
-    # Rotate the key so the text_area clears after send, then rerun
-    st.session_state._chat_input_key += 1
-    st.rerun()
+    if user_text:
+        parts_for_api.append(types.Part.from_text(text=user_text))
+    elif not parts_for_api:
+        # Neither text nor file — do nothing
+        parts_for_api = None
 
+    if parts_for_api:
+        st.session_state.messages.append({"role": "user", "content": display_content})
+
+        # Rebuild system prompt with latest calc context
+        live_calc_data = st.session_state.current_calc_context
+        system_prompt_live = SYSTEM_PROMPT.replace(
+            f"CURRENT LIVE CALCULATION DATA:\n{st.session_state.current_calc_context}",
+            f"CURRENT LIVE CALCULATION DATA:\n{live_calc_data}"
+        )
+
+        config = types.GenerateContentConfig(
+            system_instruction=system_prompt_live,
+            temperature=0.25,
+            max_output_tokens=8192,
+        )
+
+        # Build history: all previous turns as text, then the new turn with parts
+        api_contents = []
+        for msg in st.session_state.messages[:-1]:   # all except the just-appended one
+            api_contents.append(types.Content(
+                role="user" if msg["role"] == "user" else "model",
+                parts=[types.Part.from_text(text=msg["content"])]
+            ))
+        # Current turn (may include file)
+        api_contents.append(types.Content(role="user", parts=parts_for_api))
+
+        try:
+            response_stream = client.models.generate_content_stream(
+                model="gemini-2.5-flash",
+                contents=api_contents,
+                config=config
+            )
+
+            full_response = ""
+            for chunk in response_stream:
+                if hasattr(chunk, "text") and chunk.text:
+                    full_response += chunk.text
+
+            if full_response:
+                st.session_state.messages.append({"role": "model", "content": full_response})
+            else:
+                st.session_state.messages.append({
+                    "role": "model",
+                    "content": "I apologize — I received an empty response. Please try rephrasing your question."
+                })
+        except Exception as e:
+            err_msg = str(e)
+            if "quota" in err_msg.lower() or "429" in err_msg:
+                friendly = "⚠️ API quota limit reached. Please wait a moment and try again."
+            elif "blocked" in err_msg.lower() or "safety" in err_msg.lower():
+                friendly = "⚠️ The response was blocked by safety filters. Please rephrase your question."
+            elif "timeout" in err_msg.lower() or "deadline" in err_msg.lower():
+                friendly = "⚠️ Request timed out. Please try again."
+            else:
+                friendly = f"⚠️ Unable to generate response: {err_msg}"
+            st.session_state.messages.append({"role": "model", "content": friendly})
+
+        # Rotate key → clears textarea + uploader, then rerun
+        st.session_state._chat_input_key += 1
+        st.rerun()
