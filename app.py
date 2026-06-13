@@ -140,7 +140,7 @@ def load_knowledge_base():
 knowledge_context = load_knowledge_base()
 
 
-# ── 2. SIDEBAR UI & MULTILANGUAGE SELECTOR ───────────────────────────────────
+# ── 2. SIDEBAR UI & MULTILANGUAGE SELECTOR ─────────────────────────────────
 st.sidebar.image("assets/favicon.png", width=150)
 
 st.sidebar.markdown(
@@ -229,12 +229,7 @@ def get_greeting(lang):
 
     greetings = {
         "English":  {"morning": "👋 Hi, good morning! Welcome to", "afternoon": "👋 Hi, good afternoon! Welcome to", "evening": "👋 Hi, good evening! Welcome to"},
-        "Deutsch":  {"morning": "👋 Guten Morgen! Willkommen bei", "afternoon": "👋 Guten Tag! Willkommen bei", "evening": "👋 Guten Abend! Willkommen bei"},
-        "Nederlands": {"morning": "👋 Goedemorgen! Welkom bij", "afternoon": "👋 Goedemiddag! Welkom bij", "evening": "👋 Goedenavond! Welkom bij"},
-        "日本語": {"morning": "👋 おはようございます。ようこそ", "afternoon": "👋 こんにちは。ようこそ", "evening": "👋 こんばんは。ようこそ"},
-        "한국어": {"morning": "👋 좋은 아침입니다. 방문을 환영합니다", "afternoon": "👋 안녕하세요. 방문을 환영합니다", "evening": "👋 좋은 저녁입니다. 방문을 환영합니다"},
-        "العربية": {"morning": "👋 صباح الخير، أهلاً بك في", "afternoon": "👋 مساء الخير، أهلاً بك في", "evening": "👋 مساء الخير، أهلاً بك في"},
-        "Bahasa Indonesia": {"morning": "👋 Halo, selamat pagi. Selamat datang di", "afternoon": "👋 Halo, selamat siang. Selamat datang di", "evening": "👋 Halo, selamat sore. Selamat datang di"},
+        "Bahasa Indonesia": {"morning": "👋 Hai, selamat pagi. Selamat datang di", "afternoon": "👋 Hai, selamat siang. Selamat datang di", "evening": "👋 Hai, selamat sore. Selamat datang di"},
     }
     return greetings[lang][period]
 
@@ -249,56 +244,6 @@ welcome_texts = {
             "**Import regulations** — Regional compliance (EU, GCC, FDA)"
         ],
         "placeholder": "Ask me anything about Indonesian spices..."
-    },
-    "Deutsch": {
-        "subtitle": "Ich bin Ihr KI-Handelsberater für indonesische Gewürze. Ich kann Ihnen helfen bei:",
-        "bullets": [
-            "**Gewürzbeschaffung** — Produktspezifikationen, Qualitäten, Herkunft",
-            "**Exportdokumente** — Rechnung, COA, Pflanzengesundheitszeugnis, B/L",
-            "**Incoterms & Preise** — FOB-, CIF-, DDP-Berechnungen",
-            "**Importbestimmungen** — Regionale Compliance (EU, GCC, FDA)"
-        ],
-        "placeholder": "Fragen Sie nach indonesischen Gewürzen, Bestimmungen, Preisen..."
-    },
-    "Nederlands": {
-        "subtitle": "Ik ben uw Trade Intelligence Consultant voor Indonesische specerijen. Ik kan u helpen met:",
-        "bullets": [
-            "**Inkoop van specerijen** — Productspecificaties, kwaliteiten, oorsprong",
-            "**Exportdocumenten** — Factuur, COA, fytosanitair certificaat, B/L",
-            "**Incoterms & prijsstelling** — FOB-, CIF-, DDP-berekeningen",
-            "**Importregels** — Regionale naleving (EU, GCC, FDA)"
-        ],
-        "placeholder": "Vraag naar de inkoop van Indonesische specerijen, regelgeving, prijzen..."
-    },
-    "日本語": {
-        "subtitle": "私はインドネシア産香辛料の貿易インテリジェンス・コンサルタントです。以下のような業務をサポートいたします：",
-        "bullets": [
-            "**スパイス調達** — 製品仕様、グレード、原産地情報",
-            "**輸出関連書類** — インボイス、COA、植物検疫証明書、B/L",
-            "**インコタームズと価格計算** — FOB、CIF、DDPのシミュレーション",
-            "**輸入規制** — 地域ごとのコンプライアンス（EU、GCC、FDA）"
-        ],
-        "placeholder": "インドネシア産スパイスの調達、規制、価格について質問する..."
-    },
-    "한국어": {
-        "subtitle": "저는 인도네시아산 향신료 전문 무역 인테리전스 컨설턴트입니다. 다음과 같은 업무를 도와드릴 수 있습니다:",
-        "bullets": [
-            "**향신료 소싱** — 제품 규격, 등급, 원산지 정보",
-            "**수출 서류** — 상업송장, COA, 식물검역증, 선하증권(B/L)",
-            "**인코터즈 및 가격 책정** — FOB, CIF, DDP 산정",
-            "**수입 규제** — 지역별 통관 규정 준수 (EU, GCC, 미 FDA)"
-        ],
-        "placeholder": "인도네시아 향신료 소싱, 규제, 가격에 대해 문의하세요..."
-    },
-    "العربية": {
-        "subtitle": "أنا مستشارك لتجارة التوابل الإندونيسية. يمكنني مساعدتك في:",
-        "bullets": [
-            "**مصادر التوابل** — مواصفات المنتج، الدرجات، والمنشأ",
-            "**وثائق التصدير** — الفاتورة، شهادة التحليل، الشهادة الصحية، بوليصة الشحن",
-            "**الشحن والتسعير** — حسابات FOB, CIF, DDP",
-            "**لوائح الاستيراد** — الامتثال الإقليمي"
-        ],
-        "placeholder": "اسأل عن مصادر التوابل الإندونيسية، اللوائح, الأسعار..."
     },
     "Bahasa Indonesia": {
         "subtitle": "Saya adalah Konsultan Perdagangan Internasional untuk rempah-rempah Indonesia. Saya dapat membantu Anda terkait:",
@@ -1252,7 +1197,7 @@ if len(st.session_state.messages) == 0:
         st.caption("💡 You can also ask about the current calculation shown above.")
 
 # ── Scrollable fixed-height message container ─────────────────────────────────
-with st.container(height=150, border=True):
+with st.container(height=350, border=True):
     if st.session_state.messages:
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
