@@ -123,38 +123,27 @@ st.sidebar.markdown(
     <div style='padding: 2px 0 0 0;'>
         <p style='font-size: 20px; font-weight: 700; margin: 0 0 2px 0; line-height: 1.2;'>InTradeX-Mate</p>
         <p style='font-size: 13px; color: gray; margin: 0 0 1px 0; line-height: 1.4;'>
-            Your Trade Intelligence Partner<br>for Indonesian Spice Sourcing Solutions
+            A strategic initiative from<br>MAGASTU INDOPRIME GROUP (MIG)
         </p>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-st.sidebar.markdown(" ")
-
-st.sidebar.caption("""
-A strategic initiative from<br>
-**MAGASTU INDOPRIME GROUP (MIG)**
-""", unsafe_allow_html=True)
-
 st.sidebar.markdown("---")
 
 lang_option = st.sidebar.selectbox(
     "🌐 Language",
-    ["English", "Deutsch", "Nederlands", "日本語", "한국어", "العربية", "Bahasa Indonesia"]
+    ["English", "Bahasa Indonesia"]
 )
 
 st.sidebar.markdown("---")
 
-st.sidebar.markdown("🤝 How **InTradeX-Mate** Supports You!")
+st.sidebar.markdown("🤝 How does **InTradeX-Mate** Supports You?")
 st.sidebar.markdown(
     """
-    🔍 Trade Intelligence & Market Insights  
-    🌍 Export Market Exploration  
-    🤝 Supplier Discovery & Evaluation  
-    📦 Indonesian Spice Sourcing Support  
     💰 Live Quotation Estimation  
-    🚢 FOB Pricing & Cost Analysis  
+    🚢 Live FOB Pricing & Cost Analysis  
     📄 Export Documentation Guidance  
     🧠 AI-Assisted Decision Support  
     """
@@ -230,7 +219,6 @@ welcome_texts = {
     "English": {
         "subtitle": "I'm your Trade Intelligence Consultant for Indonesian spices. I can help you with:",
         "bullets": [
-            "**Spice sourcing** — Product specs, grades, origins",
             "**Export documents** — Invoice, COA, phytosanitary, B/L",
             "**Incoterms & pricing** — FOB, CIF, DDP calculations",
             "**Import regulations** — Regional compliance (EU, GCC, FDA)"
@@ -303,11 +291,6 @@ selected_lang = welcome_texts[lang_option]
 
 LANGUAGE_MAP = {
     "English": "English",
-    "Deutsch": "German",
-    "Nederlands": "Dutch",
-    "日本語": "Japanese",
-    "한국어": "Korean",
-    "العربية": "Arabic",
     "Bahasa Indonesia": "Indonesian"
 }
 
@@ -692,7 +675,7 @@ with tab_fob:
 
 # ── TAB 3: PROFORMA INVOICE GENERATOR ────────────────────────────────────────
 with tab_pi:
-    st.subheader("📄 Live PI Generator")
+    st.subheader("📄 Live Proforma Invoice Generator")
     fob_data = st.session_state.get("fob_result")
 
     if not fob_data:
@@ -886,7 +869,7 @@ with tab_pi:
 
 # ── TAB 4: QUOTATION GENERATOR ────────────────────────────────────────────────
 with tab_qt:
-    st.subheader("📋 FOB Quotation Generator")
+    st.subheader("📋 Live FOB Quotation Generator")
     fob_data_qt = st.session_state.get("fob_result")
 
     if not fob_data_qt:
@@ -911,9 +894,9 @@ with tab_qt:
             qt_seller_phone   = st.text_input("Your Phone / WhatsApp", placeholder="e.g. +62 812 XXXX XXXX", key="qt_seller_phone")
         with qt_col2:
             qt_buyer_name    = st.text_input("Buyer / Recipient Name", placeholder="e.g. Spice Trading GmbH", key="qt_buyer_name")
-            qt_buyer_company = st.text_input("Buyer Company",          placeholder="e.g. GmbH, Ltd, Inc", key="qt_buyer_company")
+            qt_buyer_company = st.text_input("Buyer Company",          placeholder="e.g. GmbH, Pty. Ltd., Inc.", key="qt_buyer_company")
             qt_buyer_email   = st.text_input("Buyer Email",            placeholder="e.g. import@spicetrading.de", key="qt_buyer_email")
-            qt_buyer_country = st.text_input("Buyer Country",          placeholder="e.g. Germany", key="qt_buyer_country")
+            qt_buyer_country = st.selectbox("Buyer Country", COUNTRY_LIST, index=None, placeholder="- Select Country -", key="qt_buyer_country")
 
         st.markdown("#### 📋 Quotation Terms")
         qt_t1, qt_t2, qt_t3 = st.columns(3)
@@ -1224,7 +1207,7 @@ st.markdown("---")
 st.markdown("""
 <div class="chat-box-header">
     <h4>🤖 InTradeX-Mate | AI Export Consultant</h4>
-    <p>Your AI-powered trade intelligence partner for Indonesian spices &amp; global trade</p>
+    <p>Your intelligence partner for Indonesian spices &amp; global trade</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1238,7 +1221,7 @@ if len(st.session_state.messages) == 0:
         st.caption("💡 You can also ask about the current calculation shown above.")
 
 # ── Scrollable fixed-height message container ─────────────────────────────────
-with st.container(height=450, border=True):
+with st.container(height=150, border=True):
     if st.session_state.messages:
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
